@@ -19,10 +19,10 @@ try {
 
 const upload = multer({
 	storage : multer.diskStorage({
-		destination(req, file, cb) {
+		destination: (req, file, cb) => {
 			cb(null, 'uploads/');
 		},
-		filename(req, file, cb) {
+		filename: (req, file, cb) => {
 			const ext = path.extname(file.originalname);
 			cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
 		},
@@ -30,15 +30,32 @@ const upload = multer({
 	limit : { fileSize : 10 * 1024 * 1024 },
 });
 
-router.post('/img', isLoggedIn, upload.single('img'), (req, res) => {
-	console.log(req.file);
-	res.json({ url : `/img/${req.file.filename}` });
-});
-
+// product 모두 가져오기
 router.get('/',  async (req, res, next) => {
 	try {
 		const product = await Product.findAll()
-		res.json({product})
+		if (product) {
+			return res.json({success: true, product})
+		} else {
+			return res.json({success: false, product: null})
+		}
+	} catch (error) {
+		console.error(error);
+		return next(error);
+	}
+});
+
+// product 가져오기
+router.get('/:id', async (req, res, next) => {
+	const productId = req.params.id
+	try {
+		const product = await Product.findOne({where: {id: productId}})
+		if (product) {
+			return res.json({success: true, product})
+		} else {
+			return res.json({success: false, product: null})
+		}
+
 	} catch (error) {
 		console.error(error);
 		return next(error);
@@ -74,16 +91,9 @@ router.post('/',  upload2.none(), async (req, res, next) => {
 	}
 });
 
-// product 가져오기
-router.get('/:id', async (req, res, next) => {
-	const productId = req.params.id
-	try {
-		// TODO id에 해당하는 product return
-
-	} catch (error) {
-		console.error(error);
-		return next(error);
-	}
+router.post('/img', isLoggedIn, upload.single('img'), (req, res, next) => {
+	console.log(req.file);
+	res.json({ url : `/img/${req.file.filename}` });
 });
 
 
