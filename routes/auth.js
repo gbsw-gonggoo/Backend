@@ -43,8 +43,7 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
     passport.authenticate('local', {},(authError, user) => {
         // 인증 오류 발생 시
         if( authError ) {
-            console.error(authError);
-            return next(authError);
+            return res.json({success: false, message: "로그인 실패"})
         }
         // 사용자 정보가 없을 시
         if( !user ) {
