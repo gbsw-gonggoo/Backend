@@ -5,8 +5,7 @@ const multer = require('multer');
 const fs = require('fs');
 
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const { User, Product } = require('../models');
-const { where } = require("sequelize");
+const { Product } = require('../models');
 
 const router = express.Router();
 
@@ -67,20 +66,48 @@ const upload2 = multer();
 router.post('/',  upload2.none(), async (req, res, next) => {
 	const { author, image, name, amount, price, text, targetCount, count, maxCount, date, link } = req.body
 	try {
-		// TODO 값들이 문제 없는지 확인 (if 문 떡칠) ㄱㄱ
+
+		if(author==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(name==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(amount==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(price==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(targetCount==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(count==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(maxCount==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(date==null){
+			res.json({success: false, message: "실패"})
+		}
+		if(link==null){
+			res.json({success: false, message: "실패"})
+		}
+
 
 		await Product.create( {
-			author: author,
-			image: image,
-			name: name,
-			amount: amount,
-			price: price,
-			text: text,
-			targetCount: targetCount,
-			count: count,
-			maxCount: maxCount,
-			date: date,
-			link: link,
+			author: author, // allowNull : false,
+			name: name, // allowNull : false,
+			amount: amount, // allowNull : false,
+			price: price, // allowNull : false,
+			image: image, // allowNull : true,
+			text: text, // allowNull : true,
+			targetCount: targetCount, // allowNull : false,
+			count: count, // allowNull : false,
+			maxCount: maxCount, // allowNull : false,
+			date: date, // allowNull : false,
+			link: link, // allowNull : false,
 		});
 
 		res.json({success: true, message: "공구 작성 완료"})
