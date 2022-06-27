@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const { User, Product } = require('../models');
-const {where} = require("sequelize");
+const { where } = require("sequelize");
 
 const router = express.Router();
 
@@ -18,16 +18,16 @@ try {
 }
 
 const upload = multer({
-	storage : multer.diskStorage({
-		destination: (req, file, cb) => {
-			cb(null, 'uploads/');
+	storage: multer.diskStorage({
+		destination: (req, file, done) => {
+			done(null, './uploads/');
 		},
-		filename: (req, file, cb) => {
+		filename: (req, file, done) => {
 			const ext = path.extname(file.originalname);
-			cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
-		},
+			done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+		}
 	}),
-	limit : { fileSize : 10 * 1024 * 1024 },
+	limits: { fileSize: 3 * 1024 * 1024 } // 3메가로 용량 제한
 });
 
 // product 모두 가져오기
@@ -67,9 +67,8 @@ const upload2 = multer();
 router.post('/',  upload2.none(), async (req, res, next) => {
 	const { author, image, name, amount, price, text, targetCount, count, maxCount, date, link } = req.body
 	try {
-		// TODO 값들이
+		// TODO 값들이 문제 없는지 확인 (if 문 떡칠) ㄱㄱ
 
-		// TODO 공구 신청
 		await Product.create( {
 			author: author,
 			image: image,
