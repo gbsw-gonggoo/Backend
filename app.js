@@ -21,7 +21,7 @@ app.set('port', process.env.PORT);
 app.set('view engine', 'html');
 
 app.use(cors({
-    origin: true,
+    origin: ['http://localhost:3002', "http://127.0.0.1:3002", 'http://172.16.1.42:3002'],
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
     credentials: true
 }));
@@ -44,22 +44,17 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-const fileStore = require('session-file-store')(session);
-
 app.use(session({
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized:false,
     secret: process.env.COOKIE_SECRET,
-    store : new fileStore(),
     cookie: {
         httpOnly: true,
-        sameSite : 'none',
-        maxAge : 5300000,
         secure: false,
     },
 }));
-app.use(passport.initialize({}));
-app.use(passport.session({}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/product', productRouter);
 app.use('/auth', authRouter);
