@@ -32,11 +32,14 @@ const upload = multer({
 // product 모두 가져오기
 router.get('/',  async (req, res, next) => {
 	try {
+		let isLogin
+		isLogin = !!req.session;
+
 		const product = await Product.findAll()
 		if (product) {
-			return res.json({success: true, product})
+			return res.json({success: true, isLogin, product})
 		} else {
-			return res.json({success: false, product: null})
+			return res.json({success: false, isLogin, product: null})
 		}
 	} catch (error) {
 		console.error(error);
@@ -63,7 +66,7 @@ router.get('/:id', async (req, res, next) => {
 
 const upload2 = multer();
 
-router.post('/',  upload2.none(), async (req, res, next) => {
+router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
 	const { author, image, name, amount, price, text, targetCount, count, maxCount, date, link } = req.body
 	try {
 
