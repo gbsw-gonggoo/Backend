@@ -8,7 +8,7 @@ const router = express.Router();
 
 // 회원가입
 router.post('/signup', isNotLoggedIn, async (req, res, next) => {
-    const { nickname, password, passwordChk, name, email, userClass } = req.body;
+    const { nickname, password, passwordChk, name, email, number } = req.body;
     try {
         const exUser = await User.findOne( { where: { email }} );
         if (exUser) {
@@ -27,7 +27,7 @@ router.post('/signup', isNotLoggedIn, async (req, res, next) => {
             email,
             nickname,
             name,
-            userClass,
+            number,
             password: hash,
         });
         return res.json({success: true, message: "성공"});
@@ -43,7 +43,7 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
     passport.authenticate('local', {},(authError, user) => {
         // 인증 오류 발생 시
         if( authError ) {
-            return res.json({success: false, message: "로그인 실패"})
+            return res.json({success: false, message: "로그인 오류"})
         }
         // 사용자 정보가 없을 시
         if( !user ) {
