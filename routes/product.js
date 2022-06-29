@@ -1,39 +1,87 @@
-const express = require('express');
+const express = require('express')
+const path = require('path')
+const fs = require('fs')
+const { isLoggedIn } = require('./middlewares')
+const { Product } = require('../models')
+const multer = require('multer')
 
-const path = require('path');
-const multer = require('multer');
-const fs = require('fs');
-
-const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const { Product } = require('../models');
-
-const router = express.Router();
+const router = express.Router()
 
 try {
-	fs.readdirSync('uploads');
+	fs.readdirSync('img')
 } catch (error) {
-	console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
-	fs.mkdirSync('uploads');
+	console.error('img 폴더가 없어 img 폴더를 생성합니다.')
+	fs.mkdirSync('img')
 }
 
 const upload = multer({
 	storage: multer.diskStorage({
 		destination: (req, file, done) => {
-			done(null, './uploads/');
+			done(null, './img/')
 		},
 		filename: (req, file, done) => {
-			const ext = path.extname(file.originalname);
-			done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+			const ext = path.extname(file.originalname)
+			done(null, path.basename(file.originalname, ext) + Date.now() + ext)
 		}
 	}),
-	limits: { fileSize: 3 * 1024 * 1024 } // 3메가로 용량 제한
-});
+	limits: { fileSize: 3 * 1024 * 1024 }
+})
+const upload2 = multer()
 
-// product 모두 가져오기
+router.post('/img', isLoggedIn, upload.single('file'), (req, res) => {
+	console.log(req.file)
+	res.json({ success: true, message: "성공" })
+})
+
+router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
+	const { amount, price, text, targetCount, maxCount, date, link } = req.body
+	try {
+
+		if (name == null) {
+			res.json({success: false, message: "실패"})
+		}
+		if (price == null) {
+			res.json({success: false, message: "실패"})
+		}
+		if (targetCount == null) {
+			res.json({success: false, message: "실패"})
+		}
+		if (maxCount == null) {
+			res.json({success: false, message: "실패"})
+		}
+		if (date == null) {
+			res.json({success: false, message: "실패"})
+		}
+		if (link == null) {
+			res.json({success: false, message: "실패"})
+		}
+		const image = req.file.path
+
+		await Product.create( {
+			author: req.user.user, // allowNull : false,
+			name: req.user.use.name, // allowNull : false,
+			amount: amount, // allowNull : false,
+			price: price, // allowNull : false,
+			image: image, // allowNull : true,
+			text: text, // allowNull : true,
+			targetCount: targetCount, // allowNull : false,
+			count: 0, // allowNull : false,
+			maxCount: maxCount, // allowNull : false,
+			date: date, // allowNull : false,
+			link: link, // allowNull : false,
+		})
+
+		res.json({success: true, message: "공구 작성 완료"})
+	} catch (error) {
+		console.error(error)
+		return next(error)
+	}
+})
+
 router.get('/',  async (req, res, next) => {
 	try {
 		let isLogin
-		isLogin = !!req.session;
+		isLogin = !!req.session
 
 		const product = await Product.findAll()
 		if (product) {
@@ -42,12 +90,11 @@ router.get('/',  async (req, res, next) => {
 			return res.json({success: false, isLogin, product: null})
 		}
 	} catch (error) {
-		console.error(error);
-		return next(error);
+		console.error(error)
+		return next(error)
 	}
-});
+})
 
-// product 가져오기
 router.get('/:id', async (req, res, next) => {
 	const productId = req.params.id
 	try {
@@ -59,71 +106,9 @@ router.get('/:id', async (req, res, next) => {
 		}
 
 	} catch (error) {
-		console.error(error);
-		return next(error);
+		console.error(error)
+		return next(error)
 	}
-});
+})
 
-const upload2 = multer();
-
-router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
-	const { author, image, name, amount, price, text, targetCount, count, maxCount, date, link } = req.body
-	try {
-
-		if(author==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(name==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(amount==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(price==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(targetCount==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(count==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(maxCount==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(date==null){
-			res.json({success: false, message: "실패"})
-		}
-		if(link==null){
-			res.json({success: false, message: "실패"})
-		}
-
-
-		await Product.create( {
-			author: author, // allowNull : false,
-			name: name, // allowNull : false,
-			amount: amount, // allowNull : false,
-			price: price, // allowNull : false,
-			image: image, // allowNull : true,
-			text: text, // allowNull : true,
-			targetCount: targetCount, // allowNull : false,
-			count: count, // allowNull : false,
-			maxCount: maxCount, // allowNull : false,
-			date: date, // allowNull : false,
-			link: link, // allowNull : false,
-		});
-
-		res.json({success: true, message: "공구 작성 완료"})
-	} catch (error) {
-		console.error(error);
-		return next(error);
-	}
-});
-
-router.post('/img', isLoggedIn, upload.single('img'), (req, res, next) => {
-	console.log(req.file);
-	res.json({ url : `/img/${req.file.filename}` });
-});
-
-
-module.exports = router;
+module.exports = router
