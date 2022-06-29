@@ -9,8 +9,8 @@ const router = express.Router();
 router.get('/', isLoggedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({
-      where: {id: req.session.passport.user.id},
-      attributes: ['name', 'number', 'email', 'backgroundImg', 'profileImg']
+      where: {id: req.user.user.id},
+      attributes: ['name', 'nickname', 'number', 'email', 'backgroundImg', 'profileImg']
     })
     if (user) {
       return res.json({success: true, user})
@@ -23,17 +23,56 @@ router.get('/', isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.put('/', isLoggedIn, async (req, res, next) => {
+  try {
+    const { email, nickname } = res.body
+
+    if (email === "") {
+      console.log("fuck")
+    }
+    if (email == null) {
+      console.log("shit")
+    }
+
+    if (req.user.user.email !== email) {
+      User.update({
+        nickname: nickname,
+        email: email,
+        emailVerify: false
+      }, {
+        where: {
+          id: req.user.user.id
+        }
+      })
+    } else {
+      User.update({
+        nickname: nickname,
+      }, {
+        where: {
+          id: req.user.user.id
+        }
+      })
+    }
+
+    return res.json({success: true, message: "업데이트 됨"})
+
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+})
+
 try {
-  fs.readdirSync('backgroundImg');
+  fs.readdirSync('background');
 } catch (error) {
-  console.error('backgroundImg 폴더가 없어 backgroundImg 폴더를 생성합니다.');
-  fs.mkdirSync('backgroundImg');
+  console.error('background 폴더가 없어 background 폴더를 생성합니다.');
+  fs.mkdirSync('background');
 }
 
 const uploadBackground = multer({
   storage: multer.diskStorage({
     destination: (req, file, done) => {
-      done(null, './backgroundImg/');
+      done(null, './background/');
     },
     filename: (req, file, done) => {
       const ext = path.extname(file.originalname);
@@ -43,12 +82,13 @@ const uploadBackground = multer({
   limits: { fileSize: 3 * 1024 * 1024 } // 3메가로 용량 제한
 });
 
-router.post('/background', isLoggedIn, uploadBackground.single('file'), (req, res, next) => {
+router.post('/background', isLoggedIn, uploadBackground.single('file'), (req, res) => {
+  console.log(req.file.path)
   User.update({
-    image: req.file.path
+    backgroundImg: "api/user/" + req.file.path.replace("\\", "/")
   }, {
     where: {
-      id : req.session.passport.user.id
+      id : req.user.user.id
     }
   })
 
@@ -56,16 +96,16 @@ router.post('/background', isLoggedIn, uploadBackground.single('file'), (req, re
 });
 
 try {
-  fs.readdirSync('profileImg');
+  fs.readdirSync('profile');
 } catch (error) {
-  console.error('profileImg 폴더가 없어 profileImg 폴더를 생성합니다.');
-  fs.mkdirSync('profileImg');
+  console.error('profile 폴더가 없어 profile 폴더를 생성합니다.');
+  fs.mkdirSync('profile');
 }
 
 const uploadProfile = multer({
   storage: multer.diskStorage({
     destination: (req, file, done) => {
-      done(null, './profileImg/');
+      done(null, './profile/');
     },
     filename: (req, file, done) => {
       const ext = path.extname(file.originalname);
@@ -75,12 +115,12 @@ const uploadProfile = multer({
   limits: { fileSize: 3 * 1024 * 1024 } // 3메가로 용량 제한
 });
 
-router.post('/profile', isLoggedIn, uploadProfile.single('file'), (req, res, next) => {
+router.post('/profile', isLoggedIn, uploadProfile.single('file'), (req, res) => {
   User.update({
-    image: req.file.path
+    profileImg: "api/user/" + req.file.path.replace("\\", "/")
   }, {
     where: {
-      id : req.session.passport.user.id
+      id : req.user.user.id
     }
   })
 
