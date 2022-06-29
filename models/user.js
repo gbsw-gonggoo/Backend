@@ -13,6 +13,9 @@ module.exports = class User extends Sequelize.Model {
                 allowNull: false,
                 unique: true,
             },
+            emailVerify: {
+                type: Sequelize.BOOLEAN,
+            },
             name: {
                 type: Sequelize.STRING(15),
                 allowNull: false,
