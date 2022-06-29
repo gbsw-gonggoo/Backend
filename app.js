@@ -41,7 +41,9 @@ sequelize.sync({force: false})
     });
 
 app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api/product/img', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/user/background', express.static(path.join(__dirname, 'background')));
+app.use('/api/user/profile', express.static(path.join(__dirname, 'profile')));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -52,17 +54,17 @@ app.use(session({
     secret: process.env.COOKIE_SECRET,
     cookie: {
         httpOnly: true,
-        secure: false,
-        maxAge: 6 * 60 * 60 * 1000,
+        secure: 'auto',
+        maxAge: 60 * 60 * 1000,
     },
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/product', productRouter);
-app.use('/auth', authRouter);
-app.use('/', indexRouter);
-app.use('/user', userRouter);
+app.use('/api/product', productRouter);
+app.use('/api/auth', authRouter);
+app.use('/api', indexRouter);
+app.use('/api/user', userRouter);
 
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
@@ -70,8 +72,8 @@ app.use((req, res, next) => {
     next(error);
 });
 
-app.use((err, req, res, next) => {
-    res.json({success: false, message: "오류"})
+app.use((err, req, res) => {
+    res.json({success: false, message: ""}).status(500)
 })
 
 app.listen(app.get('port'), () => {
