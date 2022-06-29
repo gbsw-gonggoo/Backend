@@ -12,14 +12,14 @@ router.post('/signup', isNotLoggedIn, async (req, res, next) => {
     try {
         const exUser = await User.findOne( { where: { email }} );
         if (exUser) {
-            return res.json({success: false, message: "이메일이 이미 존재"})
+            return res.json({success: false, message: "이메일이 이미 존재합니다"})
         }
         const exUser2 = await User.findOne( { where: { nickname }} );
         if (exUser2) {
-            return res.json({success: false, message: "닉네임이 이미 존재"})
+            return res.json({success: false, message: "닉네임이 이미 존재합니다"})
         }
         if (password !== passwordChk) {
-            return res.json({success: false, message: "패스워드가 같지 않음"})
+            return res.json({success: false, message: "비밀번호가 같지 않습니다"})
         }
 
         const hash = await bcrypt.hash(password, 12);
@@ -42,12 +42,12 @@ router.post('/signup', isNotLoggedIn, async (req, res, next) => {
 router.post('/login', isNotLoggedIn, (req, res, next) => {
     passport.authenticate('local', {},(authError, user) => {
         // 인증 오류 발생 시
-        if( authError ) {
-            return res.json({success: false, message: "로그인 오류"})
+        if (authError) {
+            return res.json({success: false, message: "아이디 혹은 비밀번호를 확인해주세요"})
         }
         // 사용자 정보가 없을 시
-        if( !user ) {
-            return res.json({success: false, message: "로그인 실패"})
+        if (!user) {
+            return res.json({success: false, message: "아이디 혹은 비밀번호를 확인해주세요"})
         }
         // 정상적인 로그인의 경우
         req.login(user, (loginError) => {
