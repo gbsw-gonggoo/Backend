@@ -13,6 +13,7 @@ const productRouter = require('./routes/product')
 const authRouter = require('./routes/auth')
 const indexRouter = require('./routes')
 const userRouter = require('./routes/users')
+const applyRouter = require('./routes/apply')
 
 const { sequelize } = require('./models')
 const passportConfig = require('./passport')
@@ -55,7 +56,7 @@ app.use(session({
     cookie: {
         httpOnly: true,
         secure: 'auto',
-        maxAge: 60 * 60 * 1000,
+        maxAge: 4 * 60 * 60 * 1000,
     },
 }))
 app.use(passport.initialize())
@@ -65,14 +66,9 @@ app.use('/api/product', productRouter)
 app.use('/api/auth', authRouter)
 app.use('/api', indexRouter)
 app.use('/api/user', userRouter)
+app.use('/api/apply', applyRouter)
 
-app.use((req, res, next) => {
-    const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`)
-    error.status = 404
-    next(error)
-})
-
-app.use((err, req, res) => {
+app.use((err, res) => {
     res.json({success: false, message: ""}).status(500)
 })
 
