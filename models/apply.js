@@ -6,6 +6,7 @@ module.exports = class Apply extends Sequelize.Model {
           amount : {
             type : Sequelize.INTEGER,
             allowNull : true,
+            defaultValue: 0
           },
           
         }, {
