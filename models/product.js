@@ -4,8 +4,8 @@ module.exports = class Product extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
           author : {
-            type : Sequelize.INTEGER,
-            allowNull : false,
+            type : Sequelize.STRING,
+            allowNull : false
           },
           name : {
             type : Sequelize.STRING(30),
@@ -63,7 +63,7 @@ module.exports = class Product extends Sequelize.Model {
     static associate(db){
       db.Product.belongsToMany(db.User, {
         foreignKey: 'registeredProduct',
-        ad: 'productId',
+        as: 'RegisteredProduct',
         through: 'Apply',
       })
     }

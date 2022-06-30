@@ -1,4 +1,4 @@
- const Sequelize = require('sequelize')
+const Sequelize = require('sequelize')
 
 module.exports = class User extends Sequelize.Model {
     static init(sequelize) {
@@ -15,6 +15,8 @@ module.exports = class User extends Sequelize.Model {
             },
             emailVerify: {
                 type: Sequelize.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
             },
             name: {
                 type: Sequelize.STRING(15),
@@ -51,7 +53,7 @@ module.exports = class User extends Sequelize.Model {
     static associate(db){
         db.User.belongsToMany(db.Product, {
             foreignKey: 'registeredUser',
-            as: 'userId',
+            as: 'RegisteredUser',
             through: 'Apply',
         })
     }
