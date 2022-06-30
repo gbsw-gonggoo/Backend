@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const fs = require('fs')
 const { isLoggedIn } = require('./middlewares')
-const { Product } = require('../models')
+const { Product, User } = require('../models')
 const multer = require('multer')
 
 const router = express.Router()
@@ -26,14 +26,13 @@ const upload = multer({
 	}),
 	limits: { fileSize: 3 * 1024 * 1024 }
 })
-const upload2 = multer()
 
 router.post('/img', isLoggedIn, upload.single('file'), (req, res) => {
 	console.log(req.file)
 	res.json({ success: true, message: "성공" })
 })
 
-router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
+router.post('/', isLoggedIn, upload.single('file'), async (req, res, next) => {
 	const { amount, name, price, text, targetCount, maxCount, date, link } = req.body
 
 	try {
@@ -129,11 +128,22 @@ router.get('/:id', async (req, res, next) => {
 	const productId = req.params.id
 
 	try {
-		const product = await Product.findOne({where: {id: productId}})
+		const product = await Product.findOne({
+			where: { id: productId },
+			include: [
+				{
+					model: User,
+					as: 'RegisteredProduct',
+					attributes: ['number', 'name']
+				}
+			]
+		})
+
 		if (product) {
+
 			return res.json({success: true, product})
 		} else {
-			return res.json({success: false, product: null})
+			return res.json({success: false, product: null, apply: null})
 		}
 
 	} catch (error) {
