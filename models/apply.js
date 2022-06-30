@@ -5,7 +5,7 @@ module.exports = class Apply extends Sequelize.Model {
         return super.init({
           amount : {
             type : Sequelize.INTEGER,
-            allowNull : false,
+            allowNull : true,
           },
           
         }, {
