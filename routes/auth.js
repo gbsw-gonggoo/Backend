@@ -10,11 +10,11 @@ const router = express.Router()
 router.post('/signup', isNotLoggedIn, async (req, res, next) => {
     const { nickname, password, passwordChk, name, email, number } = req.body
     try {
-        const exUser = await User.findOne( { where: { email }} )
+        const exUser = await User.findOne( { where: { email: email }} )
         if (exUser) {
             return res.json({success: false, message: "이메일이 이미 존재합니다"})
         }
-        const exUser2 = await User.findOne( { where: { nickname }} )
+        const exUser2 = await User.findOne( { where: { nickname: nickname }} )
         if (exUser2) {
             return res.json({success: false, message: "닉네임이 이미 존재합니다"})
         }
@@ -38,7 +38,6 @@ router.post('/signup', isNotLoggedIn, async (req, res, next) => {
     }
 })
 
-// 로그인
 router.post('/login', isNotLoggedIn, (req, res, next) => {
     passport.authenticate('local', {},(authError, user) => {
         // 인증 오류 발생 시
