@@ -34,32 +34,40 @@ router.post('/img', isLoggedIn, upload.single('file'), (req, res) => {
 })
 
 router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
-	const { amount, price, text, targetCount, maxCount, date, link } = req.body
-	try {
+	const { amount, name, price, text, targetCount, maxCount, date, link } = req.body
 
+	try {
 		if (name == null) {
-			res.json({success: false, message: "실패"})
+			res.json({success: false, message: "품목명을 입력해주세요"})
 		}
 		if (price == null) {
-			res.json({success: false, message: "실패"})
+			res.json({success: false, message: "가격을 입력해주세요"})
 		}
 		if (targetCount == null) {
-			res.json({success: false, message: "실패"})
+			res.json({success: false, message: "최소 수량을 입력해주세요"})
 		}
 		if (maxCount == null) {
-			res.json({success: false, message: "실패"})
+			res.json({success: false, message: "마감 수량을 입력해주세요"})
 		}
 		if (date == null) {
-			res.json({success: false, message: "실패"})
+			res.json({success: false, message: "마감 날짜를 입력해주세요"})
 		}
+		console.log(date)
+		if (date < new Date())
 		if (link == null) {
-			res.json({success: false, message: "실패"})
+			res.json({success: false, message: "상세 링크를 입력해주세요"})
 		}
-		const image = req.file.path
+		let image
+		try {
+			image = req.file.path
+		} catch (err) {
+			console.log(err)
+			image = ""
+		}
 
 		await Product.create( {
-			author: req.user.user, // allowNull : false,
-			name: req.user.use.name, // allowNull : false,
+			author: req.user.user.name, // allowNull : false,
+			name: name, // allowNull : false,
 			amount: amount, // allowNull : false,
 			price: price, // allowNull : false,
 			image: image, // allowNull : true,
@@ -95,8 +103,31 @@ router.get('/',  async (req, res, next) => {
 	}
 })
 
+router.delete('/:id', async (req, res, next) => {
+	const productId = req.params.id
+
+	try {
+		const product = await Product.findOne({where: {id: productId}})
+		if (product) {
+			Product.destroy({
+				where: { id: productId }
+			})
+			return res.json({success: false, message: "삭제되었습니다"})
+		} else {
+			return res.json({success: false, message: "삭제할 게시글이 존재하지 않습니다"})
+		}
+
+	} catch (error) {
+		console.error(error)
+		return next(error)
+	}
+})
+
+// TODO 수정 기능
+
 router.get('/:id', async (req, res, next) => {
 	const productId = req.params.id
+
 	try {
 		const product = await Product.findOne({where: {id: productId}})
 		if (product) {
