@@ -1,26 +1,26 @@
-const Sequelize = require('sequelize');
-const env = process.env.NODE_ENV || 'development';
-const config = require('../config/config')[env];
-const User = require('./user');
-const Product = require('./product');
-const Apply = require('./apply');
+const Sequelize = require('sequelize')
+const env = process.env.NODE_ENV || 'development'
+const config = require('../config/config')[env]
+const User = require('./user')
+const Product = require('./product')
+const Apply = require('./apply')
 
-const db = {};
+const db = {}
 
-const sequelize = new Sequelize(config.database, config.username, config.password, config);
+const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
-db.sequelize = sequelize;
+db.sequelize = sequelize
 
-db.User = User;
-db.Product = Product;
-db.Apply = Apply;
+db.User = User
+db.Product = Product
+db.Apply = Apply
 
-User.init(sequelize);
-Product.init(sequelize);
-Apply.init(sequelize);
+User.init(sequelize)
+Product.init(sequelize)
+Apply.init(sequelize)
 
-User.associate(db);
-Product.associate(db);
-Apply.associate(db);
+User.associate(db)
+Product.associate(db)
+Apply.associate(db)
 
-module.exports = db;
+module.exports = db

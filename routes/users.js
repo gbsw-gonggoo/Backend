@@ -1,10 +1,11 @@
-const express = require('express');
-const { User } = require("../models");
-const {isLoggedIn} = require("./middlewares");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const router = express.Router();
+const express = require('express')
+const { User } = require("../models")
+const { isLoggedIn } = require("./middlewares")
+const multer = require("multer")
+const path = require("path")
+const fs = require("fs")
+
+const router = express.Router()
 
 router.get('/', isLoggedIn, async (req, res, next) => {
   try {
@@ -18,21 +19,14 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       return res.json({success: false, user: null})
     }
   } catch (error) {
-    console.error(error);
-    return next(error);
+    console.error(error)
+    return next(error)
   }
-});
+})
 
 router.put('/', isLoggedIn, async (req, res, next) => {
   try {
     const { email, nickname } = res.body
-
-    if (email === "") {
-      console.log("fuck")
-    }
-    if (email == null) {
-      console.log("shit")
-    }
 
     if (req.user.user.email !== email) {
       User.update({
@@ -53,34 +47,33 @@ router.put('/', isLoggedIn, async (req, res, next) => {
         }
       })
     }
-
     return res.json({success: true, message: "업데이트 됨"})
 
   } catch (error) {
-    console.error(error);
-    return next(error);
+    console.error(error)
+    return next(error)
   }
 })
 
 try {
-  fs.readdirSync('background');
+  fs.readdirSync('background')
 } catch (error) {
-  console.error('background 폴더가 없어 background 폴더를 생성합니다.');
-  fs.mkdirSync('background');
+  console.error('background 폴더가 없어 background 폴더를 생성합니다.')
+  fs.mkdirSync('background')
 }
 
 const uploadBackground = multer({
   storage: multer.diskStorage({
     destination: (req, file, done) => {
-      done(null, './background/');
+      done(null, './background/')
     },
     filename: (req, file, done) => {
-      const ext = path.extname(file.originalname);
-      done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+      const ext = path.extname(file.originalname)
+      done(null, path.basename(file.originalname, ext) + Date.now() + ext)
     }
   }),
   limits: { fileSize: 3 * 1024 * 1024 } // 3메가로 용량 제한
-});
+})
 
 router.post('/background', isLoggedIn, uploadBackground.single('file'), (req, res) => {
   console.log(req.file.path)
@@ -92,28 +85,28 @@ router.post('/background', isLoggedIn, uploadBackground.single('file'), (req, re
     }
   })
 
-  res.json({ success: true, message: "성공" });
-});
+  res.json({ success: true, message: "성공" })
+})
 
 try {
-  fs.readdirSync('profile');
+  fs.readdirSync('profile')
 } catch (error) {
-  console.error('profile 폴더가 없어 profile 폴더를 생성합니다.');
-  fs.mkdirSync('profile');
+  console.error('profile 폴더가 없어 profile 폴더를 생성합니다.')
+  fs.mkdirSync('profile')
 }
 
 const uploadProfile = multer({
   storage: multer.diskStorage({
     destination: (req, file, done) => {
-      done(null, './profile/');
+      done(null, './profile/')
     },
     filename: (req, file, done) => {
-      const ext = path.extname(file.originalname);
-      done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+      const ext = path.extname(file.originalname)
+      done(null, path.basename(file.originalname, ext) + Date.now() + ext)
     }
   }),
   limits: { fileSize: 3 * 1024 * 1024 } // 3메가로 용량 제한
-});
+})
 
 router.post('/profile', isLoggedIn, uploadProfile.single('file'), (req, res) => {
   User.update({
@@ -124,7 +117,7 @@ router.post('/profile', isLoggedIn, uploadProfile.single('file'), (req, res) => 
     }
   })
 
-  res.json({ success: true, message: "성공" });
-});
+  res.json({ success: true, message: "성공" })
+})
 
-module.exports = router;
+module.exports = router
