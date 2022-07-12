@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const fs = require('fs')
 const { isLoggedIn } = require('./middlewares')
-const { Product, User } = require('../models')
+const { Product, User, Apply } = require('../models')
 const multer = require('multer')
 
 const router = express.Router()
@@ -27,13 +27,15 @@ const upload = multer({
 	limits: { fileSize: 3 * 1024 * 1024 }
 })
 
+const upload2 = multer()
+
 router.post('/img', isLoggedIn, upload.single('file'), (req, res) => {
 	console.log(req.file)
-	res.json({ success: true, message: "성공" })
+	res.json({ success: true, message: "성공", url: `/api/product/img/${req.file.filename}` })
 })
 
-router.post('/', isLoggedIn, upload.single('file'), async (req, res, next) => {
-	const { amount, name, price, text, targetCount, maxCount, date, link } = req.body
+router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
+	const { amount, name, price, text, targetCount, maxCount, date, link, url } = req.body
 
 	try {
 		if (name == null) {
@@ -56,20 +58,15 @@ router.post('/', isLoggedIn, upload.single('file'), async (req, res, next) => {
 		if (link == null) {
 			res.json({success: false, message: "상세 링크를 입력해주세요"})
 		}
-		let image
-		try {
-			image = req.file.path
-		} catch (err) {
-			console.log(err)
-			image = ""
-		}
+
+		console.log('url', url)
 
 		await Product.create( {
 			author: req.user.user.name, // allowNull : false,
 			name: name, // allowNull : false,
 			amount: amount, // allowNull : false,
 			price: price, // allowNull : false,
-			image: image, // allowNull : true,
+			image: url, // allowNull : true,
 			text: text, // allowNull : true,
 			targetCount: targetCount, // allowNull : false,
 			count: 0, // allowNull : false,
@@ -104,17 +101,18 @@ router.get('/',  async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
 	const productId = req.params.id
+	const userId = req.user.user.id
 
 	try {
-		const product = await Product.findOne({where: {id: productId}})
-		if (product) {
+		const applyRecord = await Apply.findOne({ where: { registeredProduct: productId, registeredUser: userId } })
+
+		if (applyRecord) {
 			Product.destroy({
-				where: { id: productId }
+				where: {id: productId}
 			})
 			return res.json({success: false, message: "삭제되었습니다"})
-		} else {
-			return res.json({success: false, message: "삭제할 게시글이 존재하지 않습니다"})
 		}
+		return res.json({success: false, message: "삭제할 게시글이 없거나 권한이 없습니다"})
 
 	} catch (error) {
 		console.error(error)
@@ -133,17 +131,16 @@ router.get('/:id', async (req, res, next) => {
 			include: [
 				{
 					model: User,
-					as: 'RegisteredProduct',
-					attributes: ['number', 'name']
+					as: 'RegisteredUser',
+					attributes: ['number', 'name'],
 				}
 			]
 		})
 
 		if (product) {
-
 			return res.json({success: true, product})
 		} else {
-			return res.json({success: false, product: null, apply: null})
+			return res.json({success: false, product: null})
 		}
 
 	} catch (error) {
