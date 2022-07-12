@@ -63,7 +63,7 @@ module.exports = class Product extends Sequelize.Model {
     static associate(db){
       db.Product.belongsToMany(db.User, {
         foreignKey: 'registeredProduct',
-        as: 'RegisteredProduct',
+        as: 'RegisteredUser',
         through: 'Apply',
       })
     }

@@ -34,7 +34,7 @@ router.post('/:post/:amount', isLoggedIn, async (req, res, next) => {
 		}
 
 		const user = await User.findOne({ where: {id: userId} })
-		await user.addRegisteredUser(postId, { through: {amount: amount} })
+		await user.addRegisteredProduct(postId, { through: {amount: amount} })
 		return res.json({success: true, message: `${amount}개 신청을 완료했습니다`})
 
 	} catch (error) {
