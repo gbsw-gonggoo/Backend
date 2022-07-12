@@ -1,5 +1,5 @@
 const express = require('express')
-const { User } = require("../models")
+const { User, Product } = require("../models")
 const { isLoggedIn } = require("./middlewares")
 const multer = require("multer")
 const path = require("path")
@@ -11,7 +11,14 @@ router.get('/', isLoggedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: {id: req.user.user.id},
-      attributes: ['name', 'nickname', 'number', 'email', 'backgroundImg', 'profileImg']
+      attributes: ['name', 'nickname', 'number', 'email', 'backgroundImg', 'profileImg'],
+      include: [
+        {
+          model: Product,
+          as: "RegisteredProduct",
+          attributes: ['id', 'name']
+        }
+      ]
     })
     if (user) {
       return res.json({success: true, user})
