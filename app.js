@@ -42,7 +42,7 @@ sequelize.sync({force: false})
     })
 
 app.use(morgan('dev'))
-app.use('/api/product/img', express.static(path.join(__dirname, 'uploads')))
+app.use('/api/product/img', express.static(path.join(__dirname, 'img')))
 app.use('/api/user/background', express.static(path.join(__dirname, 'background')))
 app.use('/api/user/profile', express.static(path.join(__dirname, 'profile')))
 app.use(express.json())
