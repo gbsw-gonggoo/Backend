@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const fs = require('fs')
 const { isLoggedIn } = require('./middlewares')
-const { Product, User, Apply } = require('../models')
+const { Product, User } = require('../models')
 const multer = require('multer')
 
 const router = express.Router()
@@ -101,12 +101,11 @@ router.get('/',  async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
 	const productId = req.params.id
-	const userId = req.user.user.id
 
 	try {
-		const applyRecord = await Apply.findOne({ where: { registeredProduct: productId, registeredUser: userId } })
+		const product = await Product.findOne({ where: { id: productId} })
 
-		if (applyRecord) {
+		if (product) {
 			Product.destroy({
 				where: {id: productId}
 			})
