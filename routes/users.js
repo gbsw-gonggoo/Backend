@@ -16,14 +16,17 @@ router.get('/', isLoggedIn, async (req, res, next) => {
         {
           model: Product,
           as: "RegisteredProduct",
-          attributes: ['id', 'name']
+          attributes: ['id', 'name', 'price', 'image']
         }
       ]
     })
+
+    const userProduct = await Product.findAll({where: {author: req.user.user.name}})
+
     if (user) {
-      return res.json({success: true, user})
+      return res.json({success: true, user, userProduct})
     } else {
-      return res.json({success: false, user: null})
+      return res.json({success: false, user: null, userProduct: null})
     }
   } catch (error) {
     console.error(error)
