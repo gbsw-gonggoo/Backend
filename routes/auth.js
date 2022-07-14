@@ -21,6 +21,10 @@ router.post('/signup', isNotLoggedIn, async (req, res, next) => {
         if (password !== passwordChk) {
             return res.json({success: false, message: "비밀번호가 같지 않습니다"})
         }
+        const exUser3 = await User.findOne( { where: { number: number }})
+        if (exUser3) {
+            return res.json({success: false, message: "이미 존재하는 학번입니다."})
+        }
 
         const hash = await bcrypt.hash(password, 12)
         await User.create({
