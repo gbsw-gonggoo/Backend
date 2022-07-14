@@ -21,7 +21,7 @@ router.post('/signup', isNotLoggedIn, async (req, res, next) => {
         if (password !== passwordChk) {
             return res.json({success: false, message: "비밀번호가 같지 않습니다"})
         }
-        //학번 체크기능 추가함
+        //학번 체크
         const exUser3 = await User.findOne( { where: { number: number }})
         if (exUser3) {
             return res.json({success: false, message: "이미 존재하는 학번입니다."})
