@@ -23,19 +23,19 @@ router.post('/:post/:amount', isLoggedIn, async (req, res, next) => {
 				Apply.destroy({
 					where: { registeredProduct: postId, registeredUser: userId }
 				})
-				return res.json({success: true, message: "신청을 취소했습니다"})
+				return res.json({success: true, message: "신청이 취소되었습니다"})
 			}
 			else {
 				Apply.update({amount: amount}, {
 					where: { registeredProduct: postId, registeredUser: userId }
 				})
-				return res.json({success: true, message: amount + "개로 수정했습니다"})
+				return res.json({success: true, message: amount + "개로 수정되었습니다"})
 			}
 		}
 
 		const user = await User.findOne({ where: {id: userId} })
 		await user.addRegisteredProduct(postId, { through: {amount: amount} })
-		return res.json({success: true, message: `${amount}개 신청을 완료했습니다`})
+		return res.json({success: true, message: `${amount}개 신청이 완료되었습니다`})
 
 	} catch (error) {
 		console.error(error)
